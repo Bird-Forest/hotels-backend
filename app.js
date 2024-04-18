@@ -3,8 +3,9 @@ const logger = require("morgan");
 const cors = require("cors");
 require("dotenv").config();
 
-const booksRouter = require("./routes/api/books"); // імпортуємо маршрути
-const authRouter = require("./routes/api/auth");
+const hotelRouter = require("./routes/api/hotels"); // імпортуємо маршрути
+const userRouter = require("./routes/api/users");
+const adminRouter = require("./routes/api/admins");
 
 const app = express(); // app - веб-сервер
 const formatsLogger = app.get("env") === "development" ? "dev" : "short";
@@ -12,8 +13,9 @@ app.use(cors()); // перехресні запити та передачі да
 app.use(express.json()); // для обробки формату запитів та відповіді - веб-сервер, frontend
 app.use(express.static("public")); // для збереження файлів
 
-app.use("/api/books", booksRouter); // обробляє маршрути вказуємо endpoint - /api/books
-app.use("/api/auth", authRouter);
+app.use("/api/hotels", hotelRouter); // обробляє маршрути вказуємо endpoint - /api/books
+app.use("/api/users", userRouter);
+app.use("/api/admins", adminRouter);
 
 app.use(logger(formatsLogger));
 

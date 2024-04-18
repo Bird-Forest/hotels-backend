@@ -2,12 +2,12 @@ const { Schema, model } = require("mongoose");
 const { handleMongooseError } = require("../helpers");
 const Joi = require("joi");
 
-// const emailRegexp = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+const emailRegexp = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
 // /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
 // /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
 // /^\w+([/.-]?\w+)*@\w+([/.-]?\w+)*(\.\w{2,3})+$/;
 
-const userSchema = new Schema(
+const adminSchema = new Schema(
   {
     name: {
       type: String,
@@ -15,7 +15,7 @@ const userSchema = new Schema(
     },
     email: {
       type: String,
-      // match: emailRegexp,
+      match: emailRegexp,
       unique: true,
       required: true,
     },
@@ -28,10 +28,10 @@ const userSchema = new Schema(
       type: String,
       default: "",
     },
-    avatarURL: {
-      type: String,
-      required: true,
-    },
+    // avatarURL: {
+    //   type: String,
+    //   required: true,
+    // },
     // verify: {
     //   type: Boolean,
     //   default: false,
@@ -44,11 +44,11 @@ const userSchema = new Schema(
   { versionKey: false, timestamps: true }
 );
 
-userSchema.post("save", handleMongooseError);
+adminSchema.post("save", handleMongooseError);
 
-const registerSchema = Joi.object({
+const upSchema = Joi.object({
   name: Joi.string().required(),
-  email: Joi.string().required(),
+  email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
 });
 
@@ -56,20 +56,20 @@ const registerSchema = Joi.object({
 //   email: Joi.string().pattern(emailRegexp).required(),
 // });
 
-const loginSchema = Joi.object({
-  email: Joi.string().required(),
+const inSchema = Joi.object({
+  email: Joi.string().pattern(emailRegexp).required(),
   password: Joi.string().min(6).required(),
 });
 
 const schemas = {
-  registerSchema,
+  upSchema,
   // emailSchema,
-  loginSchema,
+  inSchema,
 };
 
-const User = model("user", userSchema);
+const Admin = model("admin", adminSchema);
 
 module.exports = {
-  User,
+  Admin,
   schemas,
 };
