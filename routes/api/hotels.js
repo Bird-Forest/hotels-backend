@@ -11,7 +11,7 @@ const { schemas } = require("../../models/hotel");
 
 router.get("/", ctrl.getAll);
 
-// router.get("/:id", authenticate, isValidId, ctrl.getById);
+router.get("/:id", isValidId, ctrl.getById);
 
 router.post("/", validateBody(schemas.addSchema), ctrl.addHotel);
 

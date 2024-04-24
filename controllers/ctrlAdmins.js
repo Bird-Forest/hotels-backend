@@ -11,7 +11,7 @@ const { HttpError, ctrlWrapper } = require("../helpers");
 // const avatarDir = path.join(__dirname, "../", "public", "avatars");
 
 const signUp = async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
   const user = await Admin.findOne({ email });
   if (user) {
     throw HttpError(409, "Email already in use");
@@ -19,16 +19,28 @@ const signUp = async (req, res) => {
   const hashPassword = await bcrypt.hash(password, 10);
   //   const avatarURL = gravatar.url(email);
 
+  // const email = "joe@example.com";
+  // const username = email.split("@")[0]; // Извлечение части до символа `@`
+  // console.log(username); // Вывод: 'joe'
+
   const newUser = await Admin.create({
     ...req.body,
+    name,
+    email,
     password: hashPassword,
     // avatarURL,
   });
 
-  res.status(201).json({
-    email: newUser.email,
-    name: newUser.name,
-  });
+  const token = jwt.sign({ id: newUser._id }, SEKRET_KEY, { expiresIn: "3h" });
+  await Admin.findByIdAndUpdate(newUser._id, { token });
+
+  res.status(201).json(
+    {
+      email: newUser.email,
+      name: newUser.name,
+    },
+    token
+  );
 };
 
 const signIn = async (req, res) => {
@@ -39,9 +51,9 @@ const signIn = async (req, res) => {
     throw HttpError(401, "Email or password invalid");
   }
 
-  if (!user.verify) {
-    throw HttpError(401, "Email invalid");
-  }
+  // if (!user.verify) {
+  //   throw HttpError(401, "Email invalid");
+  // }
 
   const passwordCompare = await bcrypt.compare(password, user.password);
   if (!passwordCompare) {
@@ -52,7 +64,14 @@ const signIn = async (req, res) => {
   };
   const token = jwt.sign(payload, SEKRET_KEY, { expiresIn: "23h" });
   await Admin.findByIdAndUpdate(user._id, { token });
-  res.json({ token });
+
+  res.status(201).json(
+    {
+      email: user.email,
+      name: user.name,
+    },
+    token
+  );
 };
 
 // const getCurrent = async (req, res) => {
